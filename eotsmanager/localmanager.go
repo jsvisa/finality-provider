@@ -118,7 +118,7 @@ func (lm *LocalEOTSManager) CreateKeyWithMnemonic(name, passphrase, hdPath, mnem
 	// we need to repeat the passphrase to mock the re-entry
 	// as when creating an account, passphrase will be asked twice
 	// by the keyring
-	lm.input.Reset(passphrase + "\n" + passphrase)
+	lm.resetInput(passphrase + "\n" + passphrase)
 	record, err := lm.kr.NewAccount(name, mnemonic, passphrase, hdPath, algo)
 	if err != nil {
 		return nil, err
@@ -220,7 +220,7 @@ func (lm *LocalEOTSManager) signSchnorrSigFromPrivKey(privKey *btcec.PrivateKey,
 }
 
 func (lm *LocalEOTSManager) SignSchnorrSigFromKeyname(keyName, passphrase string, msg []byte) (*schnorr.Signature, *bbntypes.BIP340PubKey, error) {
-	lm.input.Reset(passphrase)
+	lm.resetInput(passphrase)
 	k, err := lm.kr.Key(keyName)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to load keyring record for key %s: %w", keyName, err)
@@ -275,20 +275,24 @@ func (lm *LocalEOTSManager) KeyRecord(fpPk []byte, passphrase string) (*eotstype
 }
 
 func (lm *LocalEOTSManager) getEOTSPrivKey(fpPk []byte, passphrase string) (*btcec.PrivateKey, error) {
-	lm.mu.Lock()
-	defer lm.mu.Unlock()
 	keyName, err := lm.es.GetEOTSKeyName(fpPk)
 	if err != nil {
 		return nil, err
 	}
 
-	lm.input.Reset(passphrase)
+	lm.resetInput(passphrase)
 	k, err := lm.kr.Key(keyName)
 	if err != nil {
 		return nil, err
 	}
 
 	return eotsPrivKeyFromRecord(k)
+}
+
+func (lm *LocalEOTSManager) resetInput(passphrase string) {
+	lm.mu.Lock()
+	lm.input.Reset(passphrase)
+	lm.mu.Unlock()
 }
 
 func eotsPrivKeyFromRecord(k *keyring.Record) (*btcec.PrivateKey, error) {
