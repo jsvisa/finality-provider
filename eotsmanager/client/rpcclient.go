@@ -60,10 +60,10 @@ func (c *EOTSManagerGRpcClient) CreateKey(name, passphrase, hdPath string) ([]by
 	return res.Pk, nil
 }
 
-func (c *EOTSManagerGRpcClient) CreateRandomnessPairList(uid, chainID []byte, startHeight uint64, num uint32, passphrase string) ([]*btcec.FieldVal, error) {
+func (c *EOTSManagerGRpcClient) CreateRandomnessPairList(uid, chainId []byte, startHeight uint64, num uint32, passphrase string) ([]*btcec.FieldVal, error) {
 	req := &proto.CreateRandomnessPairListRequest{
 		Uid:         uid,
-		ChainId:     chainID,
+		ChainId:     chainId,
 		StartHeight: startHeight,
 		Num:         num,
 		Passphrase:  passphrase,
@@ -99,10 +99,10 @@ func (c *EOTSManagerGRpcClient) KeyRecord(uid []byte, passphrase string) (*types
 	}, nil
 }
 
-func (c *EOTSManagerGRpcClient) SignEOTS(uid, chaiID, msg []byte, height uint64, passphrase string) (*btcec.ModNScalar, error) {
+func (c *EOTSManagerGRpcClient) SignEOTS(uid, chainId, msg []byte, height uint64, passphrase string) (*btcec.ModNScalar, error) {
 	req := &proto.SignEOTSRequest{
 		Uid:        uid,
-		ChainId:    chaiID,
+		ChainId:    chainId,
 		Msg:        msg,
 		Height:     height,
 		Passphrase: passphrase,
